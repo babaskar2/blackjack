@@ -1,0 +1,276 @@
+import os
+import random
+
+data_kartu = {
+    'Sekop': [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'AS'],
+    'Hati': [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'AS'],
+    'Keriting': [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'AS'],
+    'Wajik': [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'AS']
+}
+
+list_kartu = []
+tangan_pemain = []
+tangan_dealer = []
+
+def bermain_lagi():
+    print(f'\n\n{"Apakah Anda Ingin Bermain Lagi?":^60}')
+    bermain_kembali = input(f'{"[Y/N]":^60}').upper()
+    if bermain_kembali == 'Y':
+        os.system('cls')
+        print(f'{"Kembali Bermain":^60}')
+        permulaan_permainan()
+    elif bermain_kembali == 'N':
+        os.system('cls')
+        print(f'{"Kembali Pada Menu Utama":^60}')
+        menu_utama()
+    else:
+        tidak_valid()
+        menu_utama()
+
+def hitung_total_kartu(tangan):
+    total = 0
+    jumlah_as = 0
+    for kartu in tangan:
+        if kartu[1] in ['Jack', 'Queen', 'King']:
+            total += 10
+        elif kartu[1] == 'AS':
+            jumlah_as += 1
+            total += 11
+        else:
+            total += kartu[1]
+
+    # Kurangi nilai AS menjadi 1 jika melebihi 21
+    while total > 21 and jumlah_as:
+        total -= 10
+        jumlah_as -= 1
+
+    return total
+
+def hit():
+    global total_pemain
+    global list_kartu
+
+    pemain_kartu_hit = random.choice(list_kartu)
+    tangan_pemain.append(pemain_kartu_hit)
+    list_kartu.remove(pemain_kartu_hit)
+
+    total_pemain = hitung_total_kartu(tangan_pemain)
+
+    print(f'{"="*60:^60}')
+    print(f'{"HIT MORE OR GO HOME":^60}')
+    print(f'{"="*60:^60}')
+    print(f'\n\n\n')
+    print(f'Anda Mengambil Kartu {pemain_kartu_hit[1]} {pemain_kartu_hit[0]}')
+
+    if total_pemain > 21:
+        os.system('cls')
+        print(f'{"="*60:^60}')
+        print(f'{"BUSTED":^60}')
+        print(f'{"="*60:^60}')
+        print('\n\n')
+        print(f'Anda Mendapat Kartu: {pemain_kartu_hit[1]} {pemain_kartu_hit[0]}')
+        print(f'Total Kartu Anda: {total_pemain}')
+        bermain_lagi()
+    elif total_pemain < 21:
+        hit_stand = input(f'\nTotal Kartu Anda: {total_pemain}\nKartu Pertama Dealer: {tangan_dealer[0][1]} {tangan_dealer[0][0]}\n[H]IT atau [S]TAND ?\n:').upper()
+        if hit_stand not in ['H','S']:
+            os.system('cls')
+            tidak_valid()
+        if hit_stand == 'H':
+            os.system('cls')
+            hit()
+        elif hit_stand == 'S':
+            os.system('cls')
+            stand()
+
+    elif total_pemain == 21:
+        stand()
+
+def stand():
+    global total_dealer
+    global total_pemain
+
+    while total_dealer < 17:
+        dealer_kartu_hit = random.choice(list_kartu)
+        list_kartu.remove(dealer_kartu_hit)
+        tangan_dealer.append(dealer_kartu_hit)
+
+        total_dealer = hitung_total_kartu(tangan_dealer)
+
+    if total_dealer > 21:
+        os.system('cls')
+        print(f'{"="*60:^60}')
+        print(f'{"Dealer Busted! Anda Menang!":^60}')
+        print(f'{"="*60:^60}')
+        print(f'\n\n\n')
+        print('Total Kartu Pemain :', total_pemain)
+        for i, kartu in enumerate(tangan_dealer, 1):
+            print(f'Kartu Dealer ke-{i}: {kartu[1]} {kartu[0]}')
+        print('Total Kartu Dealer:', total_dealer)
+        bermain_lagi()
+    elif total_dealer == total_pemain:
+        os.system('cls')
+        print(f'{"="*60:^60}')
+        print(f'{"Draw!":^60}')
+        print(f'{"="*60:^60}')
+        print(f'\n\n\n')
+        print('Total Kartu Pemain :', total_pemain)
+        for i, kartu in enumerate(tangan_dealer, 1):
+            print(f'Kartu Dealer ke-{i}: {kartu[1]} {kartu[0]}')
+        print('Total Kartu Dealer:', total_dealer)
+        bermain_lagi()
+    elif total_dealer > total_pemain:
+        os.system('cls')
+        print(f'{"="*60:^60}')
+        print(f'{"Dealer Menang!":^60}')
+        print(f'{"="*60:^60}')
+        print(f'\n\n\n')
+        print('Total Kartu Pemain :', total_pemain)
+        for i, kartu in enumerate(tangan_dealer, 1):
+            print(f'Kartu Dealer ke-{i}: {kartu[1]} {kartu[0]}')
+        print('Total Kartu Dealer:', total_dealer)
+        bermain_lagi()
+    else:
+        os.system('cls')
+        print(f'{"="*60:^60}')
+        print(f'{"Anda Menang!":^60}')
+        print(f'{"="*60:^60}')
+        print(f'\n\n\n')
+        print('Total Kartu Pemain :', total_pemain)
+        for i, kartu in enumerate(tangan_dealer, 1):
+            print(f'Kartu Dealer ke-{i}: {kartu[1]} {kartu[0]}')
+        print('Total Kartu Dealer:', total_dealer)
+        bermain_lagi()
+
+def permulaan_permainan():
+    global tangan_pemain
+    global tangan_dealer
+    global total_pemain
+    global total_dealer
+    global list_kartu
+
+    tangan_pemain = []
+    tangan_dealer = []
+    total_pemain = 0
+    total_dealer = 0
+    list_kartu = []
+
+    for k, v in data_kartu.items():
+        for kartu in v:
+            list_kartu.append([k, kartu])
+
+    # Bagian Pemain
+    pemain_kartu_pertama = random.choice(list_kartu)
+    tangan_pemain.append(pemain_kartu_pertama)
+    list_kartu.remove(pemain_kartu_pertama)
+
+    pemain_kartu_kedua = random.choice(list_kartu)
+    tangan_pemain.append(pemain_kartu_kedua)
+    list_kartu.remove(pemain_kartu_kedua)
+
+    total_pemain = hitung_total_kartu(tangan_pemain)
+
+    # Bagian Dealer
+    dealer_kartu_pertama = random.choice(list_kartu)
+    tangan_dealer.append(dealer_kartu_pertama)
+    list_kartu.remove(dealer_kartu_pertama)
+
+    dealer_kartu_kedua = random.choice(list_kartu)
+    tangan_dealer.append(dealer_kartu_kedua)
+    list_kartu.remove(dealer_kartu_kedua)
+
+    total_dealer = hitung_total_kartu(tangan_dealer)
+
+    print(f'{"="*60:^60}')
+    print(f'{"Permainan Dimulai":^60}')
+    print(f'{"="*60:^60}')
+    print(f'\n\n\n')
+    print('Kartu Pertama Anda:', pemain_kartu_pertama[1], pemain_kartu_pertama[0])
+    print('Kartu Kedua Anda:', pemain_kartu_kedua[1], pemain_kartu_kedua[0])
+
+    if total_pemain == 21:
+        os.system('cls')
+        print(f'{"="*60:^60}')
+        print(f'{"JACKPOT!":^60}')
+        print(f'{"="*60:^60}')
+        print(f'\n\n\n')
+        print('Kartu Pertama Anda:', pemain_kartu_pertama[1], pemain_kartu_pertama[0])
+        print('Kartu Kedua Anda:', pemain_kartu_kedua[1], pemain_kartu_kedua[0])
+        bermain_lagi()
+    else:
+        hit_stand = input(f'\nTotal Kartu Anda: {total_pemain}\n\n\n\nKartu Pertama Dealer: {dealer_kartu_pertama[1]} {dealer_kartu_pertama[0]}\n[H]IT atau [S]TAND ?\n:').upper()
+        if hit_stand == 'H':
+            os.system('cls')
+            hit()
+        elif hit_stand == 'S':
+            os.system('cls')
+            stand()
+        else:
+            tidak_valid()
+
+def tidak_valid():
+    os.system('cls')
+    print(f'{"Pilihan Tersebut Tidak Tersedia":^60}')
+    print(f'{"Silahkan Input Kembali Ya :)":^60}')
+    menu_utama()
+
+def menu_utama():
+    print(f'{"="*60:^60}')
+    print(f'{"Selamat Datang Pada Permainan":^60}')
+    print(f'{"="*60:^60}')
+    print('\n\n\n')
+    print(f'1. Mulai Permainan\n2. Cara Bermain\n3. Keluar')
+    print('\n')
+    menu_utama_input = input('Masukan Nomor Pilihan\n: ')
+    os.system('cls')
+    if menu_utama_input == '1':
+        permulaan_permainan()
+    elif menu_utama_input == '2':
+        os.system('cls')
+        rules()
+    elif menu_utama_input == '3':
+        os.system('cls')
+        print(f'{"Terima Kasih Telah Bermain :)":^60}')
+        exit()
+    else:
+        tidak_valid()
+        menu_utama()
+
+def rules():
+    print(f'{"=" * 90:^90}')
+    print(f'{"Peraturan Bermain":^90}')
+    print(f'{"=" * 90:^90}')
+    print(f'''
+1.  Tujuan Permainan: Memenangkan permainan dengan mendapatkan jumlah kartu 21 
+    atau lebih tinggi daripada tangan dealer, tanpa melebihi total 21.
+2.  Persiapan Permainan: Menggunakan 52 kartu tanpa joker.
+3.  Pembagian Kartu: 
+    A.  Dealer membuka 1 kartu menghadap ke atas dan 1 kartu menghadapa ke bawah
+    B.  Pemain diberikan 2 kartu menghadap ke atas
+4.  Permainan Pemain: 
+    A.  Pemain dapat memilih untuk "hit" (minta kartu tambahan) atau "stand" 
+        (memegang kartu saat ini).
+    B.  Pemain dapat terus meminta kartu tambahan sampai mereka 
+        memutuskan untuk "stand" atau melebihi total 21 (bust).   
+5.  Permainan Dealer:
+    A.  Setelah semua pemain selesai bermain, dealer mengungkapkan kartunya.
+    B.  Dealer harus "hit" jika total kartunya 16 atau kurang dan "stand" jika 
+        total kartunya 17 atau lebih tinggi.      
+6.  Penentuan Pemenang:
+    A.  Jika Pemain  memiliki total kartu lebih tinggi dari dealer 
+        tanpa melebihi 21, maka Pemain menang.
+    B.  Jika Pemain mendapatkan total kartu yang sama dengan dealer,
+        maka Permainan seri.
+    C.  Jika Pemain mendapatkan total kartu kurang dari dealer, 
+        maka Pemain kalah
+          ''')
+    print(f'{"=" * 90:^90}')
+    selsai_membaca_input = input(f'{"Ketika Apa Saja Jika Sudah Selsai Membaca Peraturan":^90}\n')
+    if selsai_membaca_input == '1':
+        os.system('cls')
+        menu_utama()
+    else:
+        os.system('cls')
+        menu_utama()
+
+menu_utama()
